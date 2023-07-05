@@ -1,0 +1,105 @@
+.inBoxContainer {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.header {
+    width: 100%;
+    height: 50px;
+    padding: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bs-bg-light);
+    position: sticky;
+    top: 0;
+}
+
+.main {
+    width: 100%;
+    flex: 1 1 100vh;
+    overflow-y: auto;
+    background-color: var(--bs-bg-dark);
+}
+
+.rowContent {
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    flex-wrap: wrap;
+    border-bottom: 1px solid rgba(var(--bs-border-dark),0.5);
+}
+
+.rowContent.active {
+    background-color: rgba(var(--bs-bg-dark-hover), 0.1);
+}
+
+.contactImg {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 0 12px rgba(var(--bs-bg-dark-hover), 0.1);
+    border: 3px solid rgba(var(--bs-bg-dark-hover), 0.3);
+    display: block;
+}
+
+.contentDetail {
+    flex: 1 1;
+    height: 100%;
+    padding: 0 0.5em;
+    min-width:0;
+}
+
+.contactName {
+    color: var(--bs-text-light);
+    font-weight: bold;
+    font-size: 1.2em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.address{
+    font-size: 1em;
+    color: var(--bs-gray-400);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.time{
+    color: var(--bs-gray-400);
+}
+.addNewContact{
+    width: 57px;
+    height: 57px;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background-color: #2f6ea5;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    cursor: pointer;
+    z-index: 5;
+}
+.modalContent{
+    background-color:var(--bs-bg-dark)
+}
+.inputModal{
+    background-color: transparent;
+    border: none !important;
+    color: white;
+    width: 100%;
+}
+input.inputModal:focus-visible{
+    border:none !important;
+    outline: none !important;
+}

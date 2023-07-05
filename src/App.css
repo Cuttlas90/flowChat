@@ -1,0 +1,42 @@
+:root{
+  --bs-bg-light:#262e39;
+  --bs-bg-dark:#1d2733;
+  --bs-bg-dark-hover:255,255,255;
+  --bs-bg-Hdark:#0e1621;
+  --bs-text-light:#ffffff;
+  --bs-border-dark:0,0,0;
+  --bs-bg-Mdark : #17212b;
+  --bs-modal-bg:#17212b ;
+  --bs-brand:var(--bs-success);
+}
+.App {
+  display: flex;
+}
+
+.InBox {
+  flex: 1 0 300px ;
+  height: 100vh;
+}
+
+.MessageWindow {
+  flex: 1 1 2000px;
+  height: 100vh;
+
+}
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, .55);
+}
