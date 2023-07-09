@@ -1,4 +1,4 @@
-.SidebarContainer{
+.SidebarContainer {
     position: absolute;
     z-index: 6;
     top: 0;
@@ -8,12 +8,14 @@
     overflow: hidden;
     background-color: transparent;
     display: flex;
-    transition: all 0.4s ;
+    transition: all 0.4s;
 }
-.expandSidebar{
+
+.expandSidebar {
     width: 100vw;
 }
-.sidebar{
+
+.sidebar {
     width: 300px;
     max-width: 100%;
     background-color: var(--bs-bg-Mdark);
@@ -21,10 +23,12 @@
     transform: translateX(-100%);
     transition: all 0.5s;
 }
-.sidebarActive{
+
+.sidebarActive {
     transform: translateX(0);
 }
-.heade{
+
+.heade {
     width: 100%;
     height: 70px;
     border-bottom: 1px solid var(--bs-bg-Hdark);
@@ -33,6 +37,7 @@
     align-items: center;
     justify-content: space-between;
 }
+
 .contactImg {
     border-radius: 50%;
     width: 50px;
@@ -40,22 +45,33 @@
     box-shadow: 0 0 12px rgba(var(--bs-bg-dark-hover), 0.1);
     border: 3px solid rgba(var(--bs-bg-dark-hover), 0.3);
     display: block;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
 }
-.input{
+
+.contactImg img {
+    width: 100%;
+    object-fit: cover;
+}
+
+.input {
     background-color: transparent;
     border: none;
     margin-left: 0.5em;
-    margin-bottom: 0 ;
+    margin-bottom: 0;
     color: white;
     padding: 0;
     height: 40px;
-    max-width: 150px;
+    max-width: 120px;
 }
-.input:focus-visible{
+
+.input:focus-visible {
     border: none !important;
     outline: none;
 }
-.icon{
+
+.icon {
     width: 25px;
     height: 25px;
     border-radius: 8px;
@@ -64,6 +80,122 @@
     align-items: center;
     justify-content: center;
 }
-.icon i{
+
+.icon i {
     color: white;
+}
+
+.inputFile {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.btnSmallWithIcon {
+    background-color: var(--bs-success);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s;
+    border: none;
+    display: block;
+    padding: 2px;
+    margin-left: auto;
+}
+
+.btnSmallWithIcon:hover {
+    background-color: var(--bs-brandColor-hover);
+}
+
+.btnSmallWithIcon img {
+    width: 90%;
+    height: 90%;
+}
+
+.customFileInput {
+    color: transparent;
+    width: 100px;
+}
+
+.customFileInput::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+.customFileInput::before {
+    content: 'Select Avatar';
+    color: var(--bs-text-light);
+    display: inline-block;
+    /* background: -webkit-linear-gradient(top, #f9f9f9, #e3e3e3); */
+    /* border: 1px solid #999; */
+    border-radius: 3px;
+    /* padding: 5px 8px; */
+    outline: none;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    cursor: pointer;
+    /* text-shadow: 1px 1px #fff; */
+    font-weight: 700;
+    font-size: 10pt;
+}
+
+.customFileInput:hover::before {
+    border-color: black;
+}
+
+.customFileInput:active {
+    outline: 0;
+}
+
+.customFileInput:active::before {
+    background: -webkit-linear-gradient(top, #e3e3e3, #f9f9f9);
+}
+
+.inputColorDiv {
+    width: 35px;
+    height: 35px;
+    overflow: hidden;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 1em;
+    border: 1px solid var(--bs-text-light);
+}
+
+.inputColorDiv input {
+    width: 50px;
+    height: 50px;
+    display: block;
+    border: none;
+    padding: 0;
+    outline: none;
+    cursor: pointer;
+    inline-size: 80px;
+}
+
+.arrowNotCollaps{
+    width: 12px;
+    height: 12px;
+    display: block;
+    border-bottom: 3px solid var(--bs-success);
+    border-right: 3px solid var(--bs-success);
+    margin-left: auto;
+    transform: rotate(45deg);
+    transition: all 0.3s;
+}
+.arrowCollaps{
+    width: 12px;
+    height: 12px;
+    display: block;
+    border-bottom: 3px solid var(--bs-success);
+    border-right: 3px solid var(--bs-success);
+    margin-left: auto;
+    transform: rotate(-135deg);
+    transition: all 0.3s;
 }

@@ -40,7 +40,7 @@ function MessageWindow({ setShowWindow }) {
                         <div className='flex-grow-1 flex-shrink-1'>
                             <input tabIndex={0} className={styles.inputMessage} placeholder='write a message ...'/>
                         </div>
-                        <div><i class="bi bi-mic fs-3"></i></div>
+                        <div><i className="bi bi-mic fs-3"></i></div>
             </div>
         </div>
     )

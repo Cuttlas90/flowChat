@@ -1,9 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './InBox.module.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { getFullContacs, getMyContacts, selectService } from '../service/serviceSlice';
 function InBox({ setShowWindow, setShowSidebar }) {
+    const dispatch = useDispatch();
+    const userAddress = useSelector(selectService).user.wallet.addr;
     const handelClickContent = () => {
         setShowWindow('MessageWindow');
     }
+
+    useEffect(() => {
+        if (userAddress) {
+            dispatch(getFullContacs(userAddress));
+        }
+    }, [userAddress])
+
     // should edit
     const [contactList, setContactList] = useState([
         { name: 'shahed moez', address: '0Xa26f26sdv2s6v2scscsd5c1sd1c6sd1s65s', time: "1688208653368" },
@@ -12,7 +23,7 @@ function InBox({ setShowWindow, setShowSidebar }) {
         { name: 'Mohsen Barekati', address: '0Xa26f26sdv2s6v2scscsd5c1sd1c6sd1s65s', time: "1638206615080" },
     ])
 
-    const [newAddress,setNewAddress]=useState();
+    const [newAddress, setNewAddress] = useState();
 
     const handelTimeShow = (time) => {
         const today = new Date();
@@ -23,10 +34,6 @@ function InBox({ setShowWindow, setShowSidebar }) {
         const day = date.getDate();
         const mounth = date.getMonth();
         const year = date.getFullYear();
-        console.log(Number(Date.now()));
-        // console.log(Number(Date.now()) - Number(time))
-        console.log(mounth)
-        console.log(todayMonth)
 
         if (year === todayYear && mounth === todayMonth && todayDate === day) {
             const hours = date.getHours().toString().padStart(2, '0');
@@ -45,8 +52,8 @@ function InBox({ setShowWindow, setShowSidebar }) {
             return date.toLocaleDateString('en-US', 'YYYY,MM,DD');
         }
     }
-    const handelAddAddress =() =>{
-        setContactList(prev=>[{name: 'new Address', address: newAddress, time: Date.now()},...prev]);
+    const handelAddAddress = () => {
+        setContactList(prev => [{ name: 'new Address', address: newAddress, time: Date.now() }, ...prev]);
         setNewAddress();
     }
     return (
@@ -72,7 +79,7 @@ function InBox({ setShowWindow, setShowSidebar }) {
                         <div className={styles.time}>{handelTimeShow(row.time)}</div>
                     </div>)}
             </div>
-            <button  data-bs-toggle="modal" data-bs-target="#modalAddAddress" className={`${styles.addNewContact} btn btn-primary`}>
+            <button data-bs-toggle="modal" data-bs-target="#modalAddAddress" className={`${styles.addNewContact} btn btn-primary`}>
                 <i className="bi bi-pencil-fill fs-5 text-light"></i>
             </button>
             {/* modal add address */}
@@ -84,10 +91,10 @@ function InBox({ setShowWindow, setShowSidebar }) {
                             <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <input value={newAddress?newAddress :""} onChange={(e)=>setNewAddress(e.target.value)} className={styles.inputModal} type='text' placeholder='new address'/>
+                            <input value={newAddress ? newAddress : ""} onChange={(e) => setNewAddress(e.target.value)} className={styles.inputModal} type='text' placeholder='new address' />
                         </div>
                         <div className="modal-footer">
-                            <button onClick={()=>handelAddAddress()} type="button" className="btn btn-primary">Add Address</button>
+                            <button onClick={() => handelAddAddress()} type="button" className="btn btn-primary">Add Address</button>
                         </div>
                     </div>
                 </div>
