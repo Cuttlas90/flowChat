@@ -3,16 +3,17 @@
     z-index: 6;
     top: 0;
     left: 0;
-    width: 0;
+    width: 100vw;
     height: 100vh;
     overflow: hidden;
     background-color: transparent;
     display: flex;
     transition: all 0.4s;
+    transform: translateX(-100%);
 }
 
 .expandSidebar {
-    width: 100vw;
+    transform: translateX(0);
 }
 
 .sidebar {
@@ -47,7 +48,6 @@
     display: block;
     position: relative;
     overflow: hidden;
-    cursor: pointer;
 }
 
 .contactImg img {

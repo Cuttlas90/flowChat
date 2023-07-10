@@ -29,6 +29,12 @@ const initialState = {
       status: "",
       error: "",
       contactsList: {}
+    },
+    getChat: {
+      messageList: {}
+    },
+    sendMessage: {
+      sendList: {}
     }
   },
   getProfile: {},
@@ -168,6 +174,48 @@ export const getMyContacts = createAsyncThunk(
     return list;
   }
 );
+export const getChat = createAsyncThunk(
+  'getChat/Service',
+  async ({userAddress,contactAddress}) => {
+    const chatList = await fcl.query({
+      cadence: `
+      import MessageHistory2 from 0xmessanger
+      pub fun main(chId:String): MessageHistory2.Chat {
+        return MessageHistory2.getChat(chatID: chId)
+      }`,
+      args: (arg, t) => [arg(`${userAddress+contactAddress}`, t.String)],
+    })
+    return chatList;
+  }
+);
+export const sendMessage = createAsyncThunk(
+  'sendMessage/Service',
+  async ({uuid,userAddress,contactAddress,message}) => {
+    const transactionId = await fcl.mutate({
+      cadence: `
+      import MessageHistory2 from 0xmessanger
+
+      transaction(TransactionId: String, Sender: Address, Receiver: Address, Message: String, Timestamp: UInt64) {
+      
+        prepare(acct: AuthAccount) { 
+          MessageHistory2.updateLists(transactionId:TransactionId, sender:Sender, receiver:Receiver, message:Message, timestamp:Timestamp)
+        }
+      }
+      `,      args:(arg,t) => [
+        arg(uuid,t.String),
+        arg(userAddress,t.Address),
+        arg(contactAddress,t.Address),
+        arg(message,t.String),
+        arg(`${new Date().getTime()}`,t.UInt64),
+      ],
+      payer: fcl.authz,
+      proposer: fcl.authz,
+      authorizations: [fcl.authz],
+      limit: 50});
+      // fcl.tx(transactionId).subscribe(res => result = res.status)
+    return transactionId;
+  }
+);
 export const initProfile = createAsyncThunk(
   'initProfile/Service',
   async () => {
@@ -208,7 +256,7 @@ export const serviceSlice = createSlice({
     setAddressToGetMessage: (state, action) => {
       state.setAddressToGetMessage = action.payload
     },
-    resetState: (state,action) => {return(initialState)},
+    resetState: (state, action) => { return (initialState) },
   },
   extraReducers: (builder) => {
     builder
@@ -305,6 +353,26 @@ export const serviceSlice = createSlice({
       .addCase(getMyContacts.rejected, (state, action) => {
         state.user.getMyContacts.status = 'rejected';
         state.user.getMyContacts.error = action?.error;
+      });
+    builder
+      .addCase(getChat.pending, (state,action) => {
+        state.user.getChat.messageList[action.meta.arg.contactAddress]={...state.user.getChat.messageList[action.meta.arg.contactAddress],status:"loading",error:""};
+      })
+      .addCase(getChat.fulfilled, (state, action) => {
+        state.user.getChat.messageList[action.meta.arg.contactAddress] ={...{},"messages":action.payload.messages,status:"idle",error:""};
+      })
+      .addCase(getChat.rejected, (state, action) => {
+        state.user.getChat.messageList[action.meta.arg.contactAddress] ={...{},status:"rejected",error:action?.error};
+      });
+    builder
+      .addCase(sendMessage.pending, (state,action) => {
+        state.user.sendMessage.sendList[action.meta.arg.contactAddress]={...state.user.sendMessage.sendList[action.meta.arg.contactAddress],[action.meta.arg.uuid]:{...action.meta.arg,"txId":action.payload,"status":"loading"}};
+      })
+      .addCase(sendMessage.fulfilled, (state, action) => {
+        state.user.sendMessage.sendList[action.meta.arg.contactAddress]={...state.user.sendMessage.sendList[action.meta.arg.contactAddress],[action.meta.arg.uuid]:{...action.meta.arg,"txId":action.payload,"status":"idle"}};
+      })
+      .addCase(sendMessage.rejected, (state, action) => {
+        state.user.sendMessage.sendList[action.meta.arg.contactAddress]={...state.user.sendMessage.sendList[action.meta.arg.contactAddress],[action.meta.arg.uuid]:{...action.meta.arg,"txId":action.payload,"status":"rejected"}};
       });
   },
 });

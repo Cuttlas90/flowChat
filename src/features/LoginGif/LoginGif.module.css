@@ -1,0 +1,39 @@
+.flowLogoLogin{
+    position: relative;
+}
+.flowLogoLogin img{
+    display: block;
+    width: 200px;
+    z-index: 2;
+    position: relative;
+}
+.flowLogoLogin::before{
+position: absolute;
+content: "";
+display: block;
+height: calc(100% + 6px);
+aspect-ratio: 1;
+background-color: white;
+border-radius: 50%;
+top: -3px;
+left: -3px;
+z-index: 1;
+}
+.flowLogoLogin::after{
+position: absolute;
+content: "";
+display: block;
+height:30px ;
+width: calc(100% + 6px);
+background-color:white;
+border-radius: 10px;
+top: calc((100% - 28px)/2);
+left: 3px;
+z-index: 1;
+}
+.flowGif{
+    width: 150px;
+}
+.flowGif img{
+    width: 100%;
+}

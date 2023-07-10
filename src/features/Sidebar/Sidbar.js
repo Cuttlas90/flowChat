@@ -12,7 +12,7 @@ function Sidebar({ showSidebar, setShowSidebar }) {
     const [isCollapes, setIsCollaped] = useState(false);
 
     const handelLogOut = () => {
-        // fcl.unauthenticate();
+        fcl.unauthenticate();
         localStorage.clear()
         dispatch(resetState())
     }
@@ -69,7 +69,7 @@ function Sidebar({ showSidebar, setShowSidebar }) {
                             <span className={styles.input} >{userProfile?.name || ""}</span>
                         </div>
                     </div>
-                    <i onClick={() => setShowSidebar(false)} className="bi bi-arrow-left fs-4 me-3 text-white"></i>
+                    <i onClick={() => setShowSidebar(false)} className="bi bi-arrow-left fs-4 me-3 text-white" role='button'></i>
                 </div>
                 <div className="p-3">
                     <div className="text-light py-2">
@@ -137,13 +137,13 @@ function Sidebar({ showSidebar, setShowSidebar }) {
                             </div>
                         </div>
                     </div>
-                    <div onClick={fcl.logIn} className="d-flex align-items-center text-light py-3">
+                    <div onClick={fcl.logIn} className="d-flex align-items-center text-light py-3" role='button'>
                         <div className={styles.icon}>
                             <i className="bi bi-wallet-fill fs-6"></i>
                         </div>
                         <span className="ms-3">Connect to wallet</span>
                     </div>
-                    <div className="d-flex align-items-center text-light py-3">
+                    <div className="d-flex align-items-center text-light py-3" role='button'> 
                         <div className={styles.icon}>
                             <i className="bi bi-box-arrow-left"></i>
                         </div>

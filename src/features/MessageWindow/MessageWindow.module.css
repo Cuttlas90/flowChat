@@ -97,14 +97,24 @@
   .messageIn{
     display: flex;
     gap: 10px;
+    max-width: 90%;
+    margin-right: auto;
+    align-items: flex-start;
 }
-.messageIn img{
+.messageOut{
+    display: flex;
+    gap: 10px;
+    max-width: 90%;
+    margin-left: auto;
+    flex-direction: row-reverse;
+    align-items: flex-start;
+}
+.messageIn img,.messageOut img{
 width: 30px;
 height: 30px;
 border-radius: 50%;
 border: 1px solid white;
 flex-shrink: 0;
-margin-bottom: 1em;
 }
 .inputMessage{
     background-color: transparent;

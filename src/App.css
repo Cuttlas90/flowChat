@@ -42,3 +42,10 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, .55);
 }
+.text-hover {
+  transition: all 0.3s;
+}
+.text-hover:hover,.text-hover i.text-light:hover {
+  color: var(--bs-success) !important;
+  transition: all 0.3s;
+}
