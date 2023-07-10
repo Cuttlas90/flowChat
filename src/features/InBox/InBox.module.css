@@ -24,6 +24,8 @@
     flex: 1 1 100vh;
     overflow-y: auto;
     background-color: var(--bs-bg-dark);
+    display: flex;
+    flex-direction: column;
 }
 
 .rowContent {
@@ -103,3 +105,36 @@ input.inputModal:focus-visible{
     border:none !important;
     outline: none !important;
 }
+.inputSearch{
+    background-color: transparent;
+    border: 1px solid var(--bs-bg-Hdark);
+    margin: 0;
+    padding: 0;
+    height: 40px;
+    border-radius: 8px;
+    background-color: rgba(255,255,255,0.3);
+    font-size: large;
+    color: var(--bs-bg-Hdark);
+    padding: 0 0.5em;
+    width: 100%;
+}
+.inputSearch:focus-visible{
+    border: none !important;
+    outline: none;
+}
+
+.inputSearch::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+    color: var(--bs-bg-Hdark);
+    opacity: 0.7; 
+ 
+}
+
+.inputSearch:-ms-input-placeholder { /* Internet Explorer 10-11 */
+    color: var(--bs-bg-Hdark);
+    opacity: 0.7; 
+}
+
+.inputSearch::-ms-input-placeholder { /* Microsoft Edge */
+    color: var(--bs-bg-Hdark);
+    opacity: 0.7; 
+  }

@@ -32,12 +32,12 @@ const initialState = {
     }
   },
   getProfile: {},
+  setAddressToGetMessage: {},
 
 };
-
 export const getProfile = createAsyncThunk(
   'getProfile/Service',
-  async ({ address, isUserAddress }) => {
+  async ({ address, isUserAddress, timeStamp }) => {
     const response = await fcl.query({
       cadence: `
         import Profile from 0xProfile
@@ -48,8 +48,7 @@ export const getProfile = createAsyncThunk(
       `,
       args: (arg, t) => [arg(address, t.Address)]
     })
-    var data = { ...response, isUserAddress }
-    console.log(data)
+    var data = { ...response, isUserAddress, timeStamp }
     return data;
   }
 );
@@ -172,7 +171,6 @@ export const getMyContacts = createAsyncThunk(
 export const initProfile = createAsyncThunk(
   'initProfile/Service',
   async () => {
-    console.log("ok")
     const transactionId = await fcl.mutate({
       cadence: `
           import Profile from 0xProfile
@@ -207,27 +205,31 @@ export const serviceSlice = createSlice({
     setWalletUser: (state, action) => {
       state.user.wallet = action.payload
     },
+    setAddressToGetMessage: (state, action) => {
+      state.setAddressToGetMessage = action.payload
+    },
+    resetState: (state,action) => {return(initialState)},
   },
   extraReducers: (builder) => {
     builder
       .addCase(getProfile.pending, (state, action) => {
         if (action.meta.arg.isUserAddress) {
           state.user.profile = { ...state.user.profile, status: 'loading' };
-        }else{
+        } else {
           state.getProfile[action.meta.arg.address] = { ...state.getProfile[action.meta.arg.address], status: 'loading' };
         }
       })
       .addCase(getProfile.fulfilled, (state, action) => {
         if (action.meta.arg.isUserAddress) {
           state.user.profile = { ...action.payload, status: "idle" };
-        }else{
+        } else {
           state.getProfile[action.meta.arg.address] = { ...action.payload, status: "idle" };
         }
       })
       .addCase(getProfile.rejected, (state, action) => {
         if (action.meta.arg.isUserAddress) {
           state.user.profile = { ...state.user.profile, status: 'rejected' };
-        }else{
+        } else {
           state.getProfile[action.meta.arg.address] = { ...state.getProfile[action.meta.arg.address], status: 'rejected' };
         }
       });
@@ -307,7 +309,7 @@ export const serviceSlice = createSlice({
   },
 });
 
-export const { setWalletUser, } = serviceSlice.actions;
+export const { setWalletUser, setAddressToGetMessage, resetState } = serviceSlice.actions;
 
 export const selectService = (state) => state.service;
 
@@ -383,18 +385,16 @@ export const getFullContacs = (userAddress) => async (dispatch, getState) => {
 
   await dispatch(getMyContacts(userAddress));
   var myContacts = selectService(getState()).user.getMyContacts.contactsList;
+  myContacts = { ...myContacts, "0x04448ca29cf753bc": "1672531200000", "0xe9c2549205cdc2f7": "1688837179055", "0xe9c2549205cdc2f6": "1688837179033" }
   let sortedContacs = [];
   if (myContacts) {
     for (var contactAddress in myContacts) {
-      sortedContacs.push([contactAddress, myContacts[contactAddress]]);
+      sortedContacs.push({ address: contactAddress, timeStamp: myContacts[contactAddress] });
     }
-    sortedContacs.sort(function (a, b) {
-      return b[1] - a[1];
-    });
-    console.log(sortedContacs)
-    var SortedAddress =Object.keys(sortedContacs)
-    for (let i = 0; i < SortedAddress.length; i++) {
-      await dispatch(getProfile({ address: SortedAddress[i], isUserAddress: false }))
+    sortedContacs.sort((a, b) => (a.timeStamp < b.timeStamp) ? 1 : ((b.timeStamp < a.timeStamp) ? -1 : 0));
+    // console.log(sortedContacs)
+    for (let i = 0; i < sortedContacs.length; i++) {
+      await dispatch(getProfile({ address: sortedContacs[i].address, isUserAddress: false, timeStamp: sortedContacs[i].timeStamp }))
     }
   }
 };

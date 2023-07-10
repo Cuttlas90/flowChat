@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import styles from './Sidebar.module.css';
 import * as fcl from "@onflow/fcl";
 import { useDispatch, useSelector } from 'react-redux';
-import { getProfile, initProfileAndSetAvatar, initProfileAndSetColor, initProfileAndSetInfo, initProfileAndSetName, selectService } from '../service/serviceSlice';
+import { getProfile, resetState, initProfileAndSetAvatar, initProfileAndSetColor, initProfileAndSetInfo, initProfileAndSetName, selectService } from '../service/serviceSlice';
 import Compressor from 'compressorjs';
 
 function Sidebar({ showSidebar, setShowSidebar }) {
@@ -12,7 +12,9 @@ function Sidebar({ showSidebar, setShowSidebar }) {
     const [isCollapes, setIsCollaped] = useState(false);
 
     const handelLogOut = () => {
-        fcl.unauthenticate();
+        // fcl.unauthenticate();
+        localStorage.clear()
+        dispatch(resetState())
     }
     const handelSetAvatar = () => {
         if (userProfile.avatar[0]) {
