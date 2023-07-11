@@ -1,10 +1,11 @@
 import styles from './MessageWindow.module.css'
 import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getChat, selectService, sendMessage } from '../service/serviceSlice';
+import { getChat, selectService, sendMessage,removeFromSenList } from '../service/serviceSlice';
 import LoginGif from '../LoginGif/LoginGif';
 import { handelTimeShow } from '../functions/handelTimeShow';
 import { v4 as uuidv4 } from 'uuid';
+import HandelTransAction from './HandelTransAction';
 
 function MessageWindow({ setShowWindow }) {
     const [searchActivInput, setSearchActivInput] = useState(false);
@@ -18,6 +19,7 @@ function MessageWindow({ setShowWindow }) {
     const [inputSearch, setInputSearch] = useState("");
     const messageDiv = useRef();
     const [textMessage, setTextMessage] = useState("");
+    const [transactionStatus,setTransactionStatus]=useState({});
     useEffect(() => {
         setSearchActivInput(false);
         setInputSearch("");
@@ -48,19 +50,22 @@ function MessageWindow({ setShowWindow }) {
             }
         }
     }
-    const handelSendMessage = (message, type, UUID) => {
+    const handelSendMessage = (message, type, UUID, timestamp) => {
+        setTransactionStatus(prev=>({...prev,[UUID]:0}));
         if (message) {
             dispatch(sendMessage(
                 {
                     uuid: type === "new" ? uuidv4() : UUID,
                     userAddress: userInfo.wallet.addr,
                     contactAddress: contactInfo.address,
-                    message: message
+                    message: message,
+                    timestamp: type === "new" ? `${new Date().getTime()}` : timestamp
+                    // timestamp:"1688837179045"
                 }
             ))
         }
     }
-    console.log(sendMessageAPI)
+    // console.log(sendMessageAPI)
     return (
         <div className={styles.MessageWindowContainer}>
             <div className={styles.header}>
@@ -103,28 +108,40 @@ function MessageWindow({ setShowWindow }) {
                             </div>
                         )
                         : <>
-                            {messages?.status === "rejected" && <div className='w-100 h-100 d-flex align-items-center justify-content-center text-danger'> <i className="fs-3 me-2 bi bi-exclamation-diamond"></i>!Geting Message has error</div>}
-                            {messages?.messages?.length <= 0 && <div className='w-100 h-100 d-flex align-items-center justify-content-center text-success'>No Message</div>}
+                            {messages?.status === "rejected" && <div className='flex-grow-1 flex-shrink-1 d-flex align-items-center justify-content-center text-danger'> <i className="fs-3 me-2 bi bi-exclamation-diamond"></i>!Geting Message has error</div>}
+                            {messages?.messages?.length <= 0 && <div className='flex-grow-1 flex-shrink-1 align-items-center justify-content-center text-success'>No Message</div>}
                         </>
 
                     : <LoginGif section={!userInfo.wallet.addr ? "connectWallet" : (Object.keys(userContacts).length) ? "selectChat" : "creatNewChat"} />}
-            </div>
-            {sendMessageAPI[contactInfo.address]
-                && Object.keys(sendMessageAPI[contactInfo.address])?.map((row, index) =>
-                    <div key={index} className='pb-3'>
-                        <div className={styles.messageOut}>
-                            <div style={{ backgroundColor: userInfo.profile?.color, borderRadius: "50%", padding: "1px" }}>
-                                <img src={userInfo.profile?.avatar || "./img/avatar.png"} className={styles.contactImg} alt="" />
-                            </div>
-                            <div className='flex-grow-1 flex-shrink-1'>
-                                <span className='d-flex justify-content-end Mesage'>{sendMessageAPI[contactInfo.address][row].message}</span>
-                                {sendMessageAPI[contactInfo.address][row].status === "loading" && <span className={styles.loading}>loading...</span>}
-                                {sendMessageAPI[contactInfo.address][row].status === "idle" && <span className={styles.idle}>idle</span>}
-                                {sendMessageAPI[contactInfo.address][row].status === "rejected" && <span className={styles.rejected}>rejected</span>}
+                {sendMessageAPI[contactInfo.address]
+                    && Object.keys(sendMessageAPI[contactInfo.address])?.map((row, index) =>
+                        <div key={index} className='pb-3 position-relative' style={{zIndex:"1"}}>
+                            {(sendMessageAPI[contactInfo.address][row].status === "rejected" || transactionStatus[sendMessageAPI[contactInfo.address][row].uuid] === 1)
+                            &&
+                            <i className="bi bi-x-circle fs-6 text-danger position-absolute" onClick={()=>dispatch(removeFromSenList({contactAddress:contactInfo.address,uuid:sendMessageAPI[contactInfo.address][row].uuid}))} style={{top:"-12px",left:"-12px"}} role='button'></i>
+                            }
+                            <div className={styles.messageOutSend}>
+                                <div style={{ backgroundColor: userInfo.profile?.color, borderRadius: "50%", padding: "1px" }}>
+                                    <img src={userInfo.profile?.avatar || "./img/avatar.png"} className={styles.contactImg} alt="" />
+                                </div>
+                                <div className={(sendMessageAPI[contactInfo.address][row].status === "rejected" || transactionStatus[sendMessageAPI[contactInfo.address][row].uuid] === 1) ? `${styles.rejected} ${styles.status}` :styles.status}>
+                                    <span className='d-flex justify-content-end Mesage'>{sendMessageAPI[contactInfo.address][row].message}</span>
+                                        <HandelTransAction
+                                            txId={sendMessageAPI[contactInfo.address][row].txId}
+                                            userAddress={userInfo.wallet.addr}
+                                            contactAddress={contactInfo.address}
+                                            actionFunc={handelSendMessage}
+                                            message={sendMessageAPI[contactInfo.address][row].message}
+                                            UUID={sendMessageAPI[contactInfo.address][row].uuid}
+                                            timestamp={sendMessageAPI[contactInfo.address][row].timestamp}
+                                            status={sendMessageAPI[contactInfo.address][row].status}
+                                            setTransactionStatus = {setTransactionStatus}
+                                        />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+            </div>
             {messages?.status === "loading"
                 &&
                 <div className='text-success'>
@@ -137,7 +154,7 @@ function MessageWindow({ setShowWindow }) {
             <div className={styles.footer}>
                 <div className='text-hover'><i className="bi bi-paperclip fs-3" role='button'></i></div>
                 <div className='flex-grow-1 flex-shrink-1'>
-                    <input disabled={contactInfo.address ? false : true} value={textMessage[contactInfo?.address] || ""} onChange={(e) => setTextMessage((prev) => ({ ...prev, [`${contactInfo?.address}`]: e.target.value }))} tabIndex={0} className={styles.inputMessage} placeholder='write a message ...' />
+                    <input onKeyUp={(e)=>e.key === "Enter" && handelSendMessage(textMessage[[contactInfo?.address]], "new") } disabled={contactInfo.address ? false : true} value={textMessage[contactInfo?.address] || ""} onChange={(e) => setTextMessage((prev) => ({ ...prev, [`${contactInfo?.address}`]: e.target.value }))} tabIndex={0} className={styles.inputMessage} placeholder='write a message ...' />
                 </div>
                 <div onClick={() => contactInfo.address && handelSendMessage(textMessage[[contactInfo?.address]], "new")} className='text-hover'><i className="bi bi-send me-2 fs-3" role='button'></i></div>
                 <div className='text-hover'><i className="bi bi-mic fs-3" role='button'></i></div>

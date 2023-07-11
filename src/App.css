@@ -9,7 +9,7 @@
   --bs-modal-bg:#17212b ;
   --bs-brand:var(--bs-success);
   --bs-brandColor:#00b868;
-  --bs-brandColor-hover:#00ef8b
+  --bs-brandColor-hover:#00ef8b;
 }
 .App {
   display: flex;

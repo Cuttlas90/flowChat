@@ -2,8 +2,9 @@ import { config } from "@onflow/fcl";
 
 config({
   "accessNode.api": "https://rest-testnet.onflow.org", // Mainnet: "https://rest-mainnet.onflow.org"
-  // "accessNode.api": "http://192.168.1.6:8888/", // Mainnet: "https://rest-mainnet.onflow.org"
+  // "accessNode.api": "http://localhost:8888",
   "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn", // Mainnet: "https://fcl-discovery.onflow.org/authn"
+  // "discovery.wallet": "http://localhost:8701/fcl/authn",
   "app.detail.title":"test-flow",
   "app.detail.icon":window.location + "/favicon.ico",
   // "0xProfile":"0xba1132bc08f82fe2",

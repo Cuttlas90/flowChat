@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, current } from '@reduxjs/toolkit';
 import "../../flow/config";
 import * as fcl from "@onflow/fcl";
 const initialState = {
@@ -190,7 +190,7 @@ export const getChat = createAsyncThunk(
 );
 export const sendMessage = createAsyncThunk(
   'sendMessage/Service',
-  async ({uuid,userAddress,contactAddress,message}) => {
+  async ({uuid,userAddress,contactAddress,message,timestamp}) => {
     const transactionId = await fcl.mutate({
       cadence: `
       import MessageHistory2 from 0xmessanger
@@ -206,13 +206,12 @@ export const sendMessage = createAsyncThunk(
         arg(userAddress,t.Address),
         arg(contactAddress,t.Address),
         arg(message,t.String),
-        arg(`${new Date().getTime()}`,t.UInt64),
+        arg(timestamp,t.UInt64),
       ],
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
       limit: 50});
-      // fcl.tx(transactionId).subscribe(res => result = res.status)
     return transactionId;
   }
 );
@@ -257,6 +256,11 @@ export const serviceSlice = createSlice({
       state.setAddressToGetMessage = action.payload
     },
     resetState: (state, action) => { return (initialState) },
+    removeFromSenList:(state, action)=>{
+      var tempList = {...state.user.sendMessage.sendList[action.payload.contactAddress]};
+      delete tempList[action.payload.uuid];
+      state.user.sendMessage.sendList[action.payload.contactAddress] = tempList;
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -360,6 +364,22 @@ export const serviceSlice = createSlice({
       })
       .addCase(getChat.fulfilled, (state, action) => {
         state.user.getChat.messageList[action.meta.arg.contactAddress] ={...{},"messages":action.payload.messages,status:"idle",error:""};
+        var sendMessageList =current(state).user.sendMessage.sendList[action.meta.arg.contactAddress];
+        var tempList = {...sendMessageList};
+        var messges = [...action.payload.messages]
+        if (sendMessageList){
+          var sendmessagUuIds = Object.keys(sendMessageList);
+          for (let uuid of sendmessagUuIds){
+            let timestamp = sendMessageList[uuid].timestamp;
+            let finded = messges.find(item=>item.timestamp === timestamp);
+            if (finded){
+              delete tempList[uuid];
+            }
+          } 
+          state.user.sendMessage.sendList[action.meta.arg.contactAddress]= {...tempList};
+          console.log("sendMessageList")
+          console.log(sendMessageList)
+        }
       })
       .addCase(getChat.rejected, (state, action) => {
         state.user.getChat.messageList[action.meta.arg.contactAddress] ={...{},status:"rejected",error:action?.error};
@@ -377,7 +397,7 @@ export const serviceSlice = createSlice({
   },
 });
 
-export const { setWalletUser, setAddressToGetMessage, resetState } = serviceSlice.actions;
+export const { setWalletUser, setAddressToGetMessage, resetState ,removeFromSenList} = serviceSlice.actions;
 
 export const selectService = (state) => state.service;
 
