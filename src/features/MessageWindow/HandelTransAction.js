@@ -3,7 +3,7 @@ import * as fcl from "@onflow/fcl";
 import { useDispatch, useSelector } from "react-redux";
 import { getChat, selectService } from '../service/serviceSlice';
 
-function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, message, UUID, timestamp, status,setTransactionStatus }) {
+function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, message, UUID, timestamp, status, setTransactionStatus }) {
     const [transActionResult, setTransActionResult] = useState();
     const calleSubscibe = useRef();
     const dispatch = useDispatch();
@@ -17,11 +17,11 @@ function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, mess
         }
     }, [txId, transActionResult, calleSubscibe]);
 
-    useEffect(()=>{
-        if (transActionResult?.statusCode === 1){
-            setTransactionStatus(prev=>({...prev,[UUID]:transActionResult.statusCode}));
+    useEffect(() => {
+        if (transActionResult?.statusCode === 1) {
+            setTransactionStatus(prev => ({ ...prev, [UUID]: transActionResult.statusCode }));
         }
-    },[transActionResult,setTransactionStatus,UUID])
+    }, [transActionResult, setTransactionStatus, UUID])
 
     useEffect(() => {
         if (transActionResult?.statusCode === 0 && transActionResult?.status === 4 && getChatAPI[contactAddress]?.status !== "loading" && caledGetChatAPI.current !== txId) {
@@ -29,7 +29,7 @@ function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, mess
             caledGetChatAPI.current = txId;
         }
     }, [transActionResult, contactAddress, dispatch, userAddress, getChatAPI, caledGetChatAPI, txId])
-    // console.log(transActionResult)
+    console.log(transActionResult)
     return (
         <div className="d-flex align-items-center">
             {(transActionResult?.statusCode === 1 || status === "rejected")
@@ -39,7 +39,7 @@ function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, mess
             {/* {status === "idle" && <div className="progress flex-grow-1 flex-shrink-1 me-2" style={{ height: "0.3rem" }}>
                 <div className={transActionResult?.statusCode === 1 ? "progress-bar progress-bar-striped bg-danger" : "progress-bar progress-bar-striped bg-success"} role="progressbar" aria-label="Success striped example" style={{ width: `${transActionResult?.status * 25}%` }} aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>} */}
-            {((status === "loading" || !transActionResult?.statusCode)&& status !=="rejected" ) && <div className='text-success'>
+            {((status === "loading" || transActionResult?.status !==1) && status !== "rejected") && <div className='text-success'>
                 <div className="spinner-grow spinner-grow-sm mx-2 " role="status">
                     <span className="visually-hidden">Loading...</span>
                 </div>

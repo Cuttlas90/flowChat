@@ -78,7 +78,7 @@ export const setProfileName = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 50
+      limit: 100
     });
     return transactionId
   });
@@ -102,7 +102,7 @@ export const setProfileAvatar = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 50
+      limit: 100
     })
     const transaction = await fcl.tx(transactionId).onceSealed()
     return transaction;
@@ -128,7 +128,7 @@ export const setProfileInfo = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 50
+      limit: 100
     })
     const transaction = await fcl.tx(transactionId).onceSealed()
     return transaction;
@@ -154,7 +154,7 @@ export const setProfileColor = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 50
+      limit: 100
     })
     const transaction = await fcl.tx(transactionId).onceSealed()
     return transaction;
@@ -165,9 +165,9 @@ export const getMyContacts = createAsyncThunk(
   async (address) => {
     const list = await fcl.query({
       cadence: `
-      import MessageHistory2 from 0xmessanger
-      pub fun main(adres:Address): MessageHistory2.Person?{
-        return MessageHistory2.getPerson(address:adres)
+      import MessangerTest from 0xmessanger
+      pub fun main(adres:Address): Messanger.Person?{
+        return Messanger.getPerson(address:adres)
       }`,
       args: (arg, t) => [arg(address, t.Address)],
     });
@@ -179,26 +179,43 @@ export const getChat = createAsyncThunk(
   async ({userAddress,contactAddress}) => {
     const chatList = await fcl.query({
       cadence: `
-      import MessageHistory2 from 0xmessanger
-      pub fun main(chId:String): MessageHistory2.Chat {
-        return MessageHistory2.getChat(chatID: chId)
+      import MessangerTest from 0xmessanger
+      transaction(ChatID: String,Side2: Address): Messanger.Chat {
+        prepare(account: AuthAccount){
+        return Messanger.getChatpublic(chatID: ChatID, account: account, side2: Side2)
+        }
       }`,
-      args: (arg, t) => [arg(`${userAddress+contactAddress}`, t.String)],
+      // cadence: `
+      // import MessangerTest from 0xmessanger
+      // pub fun main(ChatID: String,Side2: Address): Messanger.Chat {
+      //   prepare(account: AuthAccount){
+      //   return Messanger.getChatpublic(chatID: ChatID, account: account, side2: Side2)
+      //   }
+      // }`,
+      args: (arg, t) => [
+        arg(`${userAddress+contactAddress}`, t.String),
+        arg(`${contactAddress}`, t.String)
+    ],
     })
     return chatList;
   }
 );
+// [109, 111,104, 115, 101, 110]
 export const sendMessage = createAsyncThunk(
   'sendMessage/Service',
   async ({uuid,userAddress,contactAddress,message,timestamp}) => {
     const transactionId = await fcl.mutate({
       cadence: `
-      import MessageHistory2 from 0xmessanger
+      import MessangerTest from 0xmessanger
 
-      transaction(TransactionId: String, Sender: Address, Receiver: Address, Message: String, Timestamp: UInt64) {
+      transaction(TransactionId: String,Sender:Address,Receiver: Address, Message: String,Signature:String) {
       
-        prepare(acct: AuthAccount) { 
-          MessageHistory2.updateLists(transactionId:TransactionId, sender:Sender, receiver:Receiver, message:Message, timestamp:Timestamp)
+        prepare(account: AuthAccount) { 
+          let time: UFix64 = getCurrentBlock().timestamp
+          let hexSign: [UInt8] = Signature.decodeHex()
+          let hexData: [UInt8] = [39,109,111,104,115,101,110,39]
+          let x: HashAlgorithm = HashAlgorithm.SHA3_256
+          MessangerTest.sendMessage(transactionId:TransactionId,sender:Sender, receiver:Receiver, message:Message, timestamp:time,signature:hexSign,signedData:hexData ,hashAlgorithm:HashAlgorithm.SHA3_256)
         }
       }
       `,      args:(arg,t) => [
@@ -206,12 +223,15 @@ export const sendMessage = createAsyncThunk(
         arg(userAddress,t.Address),
         arg(contactAddress,t.Address),
         arg(message,t.String),
-        arg(timestamp,t.UInt64),
+        // arg(timestamp,t.UInt64),
+        arg("da2a3235f71661636d79b3a437f8f33c4fdc141b1ba8d8e7cc15303a4b83aa44c22fe116bd6e9462376cd209e91f86e32d8688186d57eeed35c817c3ce4bb513",t.String),
+        // arg("e9c2549205cdc2f7",t.String),
+        // arg(1,t.Int)
       ],
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 50});
+      limit: 100});
     return transactionId;
   }
 );
@@ -238,7 +258,7 @@ export const initProfile = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 50
+      limit: 100
     })
     const transaction = await fcl.tx(transactionId).onceSealed()
     return transaction;

@@ -5,6 +5,7 @@ import { getFullContacs, getProfile, resetState, selectService, setAddressToGetM
 import LoginGif from '../LoginGif/LoginGif';
 import * as fcl from "@onflow/fcl";
 import { handelTimeShow } from '../functions/handelTimeShow';
+import { AppUtils } from "@onflow/fcl"
 
 function InBox({ setShowWindow, setShowSidebar }) {
     const dispatch = useDispatch();
@@ -66,8 +67,23 @@ function InBox({ setShowWindow, setShowSidebar }) {
         localStorage.clear()
         dispatch(resetState())
     }
+
+
+    const runTest =async()=>{
+        const MSG = "6d6f6873656e"
+        // const MSG = Buffer.from("FOO").toString("hex")
+        try {
+          console.log(await fcl.currentUser.signUserMessage(MSG))
+        } catch (error) {
+          console.log(error)
+        }
+    }
+    const veryFy =async()=>{
+
+    }
     return (
         <div className={styles.inBoxContainer}>
+            <button onClick={()=>runTest()}>test</button>
             <div className={styles.header}>
                 <div className="d-flex align-items-center flex-grow-1 flex-shrink-1 flex-grow-1 text-hover ">
                     <i onClick={() => setShowSidebar(true)} className="bi bi-list fs-3 text-light " role="button"></i>
