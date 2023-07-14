@@ -137,3 +137,228 @@ input.inputModal:focus-visible{
     color: var(--bs-bg-Hdark);
     opacity: 0.7; 
   }
+
+
+
+  
+  
+  
+  
+  .floatingButton{
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background:var(--bs-success);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    cursor: pointer;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+  }
+  
+  .plus{
+    color: white;
+    position: absolute;
+    top: 0;
+    display: block;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    line-height: 55px;
+    font-size: 38px;
+    font-family: 'Roboto';
+    font-weight: 300;
+    animation: plus-out 0.3s;
+    transition: all 0.3s;
+  }
+  
+  .containerFloating{
+    width: 175px;
+    height: 58px;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    z-index: 50px;
+overflow: hidden;
+  }
+  
+  .containerFloating:hover{
+    height: 215px;
+  }
+  
+  .containerFloating:hover .plus{
+    animation: plus-in 0.15s linear;
+    animation-fill-mode: forwards;
+  }
+  
+  .edit{
+    position: absolute;
+    top: 0;
+    display: block;
+    top: -6px;
+    left: 14px;
+    display: block;
+    right: 0;
+    padding: 0;
+    opacity: 0;
+    margin: auto;
+    line-height: 65px;
+    transform: rotateZ(-70deg);
+    transition: all 0.3s;
+    animation: edit-out 0.3s;
+  }
+  
+  .containerFloating:hover .edit{
+    animation: edit-in 0.2s;
+     animation-delay: 0.1s;
+    animation-fill-mode: forwards;
+  }
+  
+  @keyframes edit-in{
+      from {opacity: 0; transform: rotateZ(-70deg);}
+      to {opacity: 1; transform: rotateZ(0deg);}
+  }
+  
+  @keyframes edit-out{
+      from {opacity: 1; transform: rotateZ(0deg);}
+      to {opacity: 0; transform: rotateZ(-70deg);}
+  }
+  
+  @keyframes plus-in{
+      from {opacity: 1; transform: rotateZ(0deg);}
+      to {opacity: 0; transform: rotateZ(180deg);}
+  }
+  
+  @keyframes plus-out{
+      from {opacity: 0; transform: rotateZ(180deg);}
+      to {opacity: 1; transform: rotateZ(0deg);}
+  }
+  
+  .nds{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    position: absolute;
+    z-index: 300;
+    transform:  scale(0);
+    cursor: pointer;
+  }
+  .nds:hover::before{
+    transform: translateX(0);
+}
+.nds::before{
+    transform: translateX(-1000px);
+    content: attr(title);
+    position: absolute;
+    width: 120px;
+    height: 30px;
+    right: 45px;
+    top: 5px;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 15px;
+    color: white;
+    z-index: -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow:hidden;
+    transition: all 0.3s;
+
+  }
+  .nd1{
+    background:var(--bs-brand);
+    right: 7px;
+    bottom: 70px;
+    animation-delay: 0.2s;
+      animation: bounce-out-nds 0.3s linear;
+    animation-fill-mode:  forwards;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .nd3{
+      background: var(--bs-brand);
+      right: 7px;
+      bottom: 120px;
+      animation-delay: 0.15s;
+      animation: bounce-out-nds 0.15s linear;
+      animation-fill-mode:  forwards;
+    }
+    .nd3 i::before{
+        -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+    }
+
+  
+  .nd4{
+    background:var(--bs-brand);
+    right: 7px;
+    bottom: 170px;
+    animation-delay: 0.1s;
+      animation: bounce-out-nds 0.1s linear;
+    animation-fill-mode:  forwards;
+  }
+  
+  @keyframes bounce-nds{
+      from {opacity: 0;}
+      to {opacity: 1; transform: scale(1);}
+  }
+  
+  @keyframes bounce-out-nds{
+      from {opacity: 1; transform: scale(1);}
+      to {opacity: 0; transform: scale(0);}
+  }
+  
+  .containerFloating:hover .nds{
+    
+    animation: bounce-nds 0.1s linear;
+    animation-fill-mode:  forwards;
+  }
+  
+  .containerFloating:hover .nd3{
+    animation-delay: 0.08s;
+  }
+  .containerFloating:hover .nd4{
+    animation-delay: 0.15s;
+  }
+  .containerFloating:hover .nd5{
+    animation-delay: 0.2s;
+  }
+  
+  .letter{
+    font-size: 23px;
+    font-family: 'Roboto';
+    color: white;
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: 0;
+    top: 0;
+    bottom: 0;
+    text-align: center;
+    line-height: 40px;
+  }
+  
+  .reminder{
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    line-height: 40px;
+  }
+  
+  .profile{
+    border-radius: 50%;
+    width: 40px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    right: 20px;
+  }

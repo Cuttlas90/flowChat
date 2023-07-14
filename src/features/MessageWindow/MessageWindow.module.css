@@ -171,3 +171,6 @@
     background-color: rgba(var(--bs-danger-rgb), 0.2);
     border: 2px dashed rgb(var(--bs-danger-rgb));
 }
+.modalContent{
+    background-color:var(--bs-bg-dark)
+}

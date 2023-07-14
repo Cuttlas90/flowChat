@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import styles from './InBox.module.css'
 import { useDispatch, useSelector } from 'react-redux';
-import { getFullContacs, getProfile, resetState, selectService, setAddressToGetMessage } from '../service/serviceSlice';
+import { createChannel, getChannelInfo, getFullContacs, getProfile, resetState, selectService, setAddressToGetMessage, setChannelToGetMessage } from '../service/serviceSlice';
 import LoginGif from '../LoginGif/LoginGif';
 import * as fcl from "@onflow/fcl";
 import { handelTimeShow } from '../functions/handelTimeShow';
-import { AppUtils } from "@onflow/fcl"
 
 function InBox({ setShowWindow, setShowSidebar }) {
     const dispatch = useDispatch();
@@ -16,13 +15,38 @@ function InBox({ setShowWindow, setShowSidebar }) {
     const [inputSearch, setInputSearch] = useState("")
     const contactDiv = useRef();
     const [activeRow, setActiveRow] = useState("");
+    const [modalSection, setModalSection] = useState("");
+    const [newChanel, setNewChanel] = useState("");
+    const [searchChanel, setSearchChanel] = useState("");
+    const createChannelAPI = useSelector(selectService).user.createChannel;
+    const [transActionResult, setTransActionResult] = useState();
+    const calleSubscibe = useRef();
+    const [patternError, setPatternError] = useState("");
+    const [channelType, setChannelType] = useState(false);
+    const [chanelFee, setChanelFee] = useState("");
+    const myChanels = useSelector(selectService).getChannelInfo
 
-    const handelClickContent = (addrs, profile) => {
-        setShowWindow('MessageWindow');
+    // console.log(transActionResult)
+    const handelClickContent = (addrs, profile, section) => {
+        setShowWindow(section);
         setActiveRow(addrs);
         dispatch(setAddressToGetMessage({ address: addrs, profile: profile }))
     }
+    const handelClickChanel = (chanel, profilchanelInfo, section) => {
+        setShowWindow(section);
+        setActiveRow(chanel);
+        dispatch(setChannelToGetMessage({ channel: chanel, profilchanelInfo: profilchanelInfo }))
+    }
 
+    useEffect(() => {
+        if (calleSubscibe.current !== createChannelAPI.txId && createChannelAPI.txId && createChannelAPI.status === "idle") {
+            fcl.tx(createChannelAPI.txId).subscribe(res => setTransActionResult(res))
+            calleSubscibe.current = createChannelAPI.txId;
+        }
+    }, [createChannelAPI, transActionResult, calleSubscibe]);
+
+
+    // console.log(crypto.randomBytes(32).toString('hex'))
     useEffect(() => {
         if (userAddress) {
             dispatch(getFullContacs(userAddress));
@@ -35,9 +59,51 @@ function InBox({ setShowWindow, setShowSidebar }) {
 
     const [newAddress, setNewAddress] = useState();
 
-    const handelAddAddress = () => {
-        dispatch(getProfile({ address: newAddress, isUserAddress: false, timeStamp: Date.now() }));
-        setNewAddress();
+    useEffect(() => {
+        if (createChannelAPI.txId && createChannelAPI.status === "idle" && transActionResult?.status === 4 && transActionResult?.statusCode === 0) {
+            dispatch(getFullContacs(userAddress));
+        }
+    }, [createChannelAPI, transActionResult, dispatch, userAddress]);
+
+    const handelAddAddress = (section) => {
+        if (section === "chat") {
+            dispatch(getProfile({ address: newAddress, isUserAddress: false, timeStamp: Date.now() }));
+            setNewAddress("");
+            handelClickContent(newAddress, "", "ChatView")
+        }
+        if (section === "search") {
+            console.log(searchChanel)
+                dispatch(getChannelInfo({chanelId:searchChanel}));
+        }
+        if (section === "chanel") {
+            setTransActionResult();
+            if (newChanel !== "") {
+                console.log(patternError)
+                if (patternError === "ok") {
+                    dispatch(createChannel({
+                        uuid: newChanel,
+                        userAddress: userAddress,
+                        channelTyple: !channelType,
+                        subscribeFee: !channelType ? 0 : chanelFee
+                    }))
+                    handelClickChanel(
+                        newChanel,
+                        {
+                            followers: [],
+                            id: newChanel,
+                            owner: userAddress,
+                            channelType: channelType,
+                            subscribeFee: chanelFee,
+                            LastMessageTimeStamp: Date.now(),
+                            status: "create"
+                        }
+                        , "ChanelView")
+                    setNewChanel("");
+                }
+            }
+
+        }
+
     }
 
     const handelSearch = (textSearch) => {
@@ -69,21 +135,86 @@ function InBox({ setShowWindow, setShowSidebar }) {
     }
 
 
-    const runTest =async()=>{
-        const MSG = "6d6f6873656e"
-        // const MSG = Buffer.from("FOO").toString("hex")
-        try {
-          console.log(await fcl.currentUser.signUserMessage(MSG))
-        } catch (error) {
-          console.log(error)
-        }
-    }
-    const veryFy =async()=>{
+    // const runTest = async () => {
+    //     console.log(`${168254125441}.0`)
+    //     // var mess = hashMsg(`'mohsen'`)
+    //     var mess = "mohsen"
+    //     const MSG = Buffer.from(mess).toString("hex")
+    //     console.log(MSG)
+    //     var signetur;
+    //     try {
+    //         signetur = await fcl.currentUser.signUserMessage(MSG)
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
 
+    //     console.log(signetur);
+
+    // var test = Test()
+    // }
+    // const hashMsg = (msg) => {
+    //     const sha = new SHA3(256);
+    //     return sha.update(toBytesWithTag(msg)).digest();
+    // };
+    // const toBytesWithTag = (str) => {
+    //     const tagBytes = Buffer.alloc(32);
+    //     Buffer.from('FLOW-V0.0-user').copy(tagBytes);
+    //     const strBytes = Buffer.from(str);
+    //     return Buffer.concat([tagBytes, strBytes]);
+    // }
+
+    // const verify = async () => {
+    //     console.log(window.user)
+    //     var msg = "mohsen"
+    //     var compSigs = "123"
+
+
+    //     let compSig = compSigs.length > 0 ? compSigs[0] : null;
+
+    //     if (window.user && compSig) {
+    //         axios.post('/login', {
+    //             message: msg,
+    //             address: compSig.addr,
+    //             signature: compSig.signature,
+    //             keyId: compSig.keyId
+    //         })
+    //             .then(function (response) {
+    //                 console.log(response);
+    //                 //Here you can check the response from your back-end
+    //             })
+    //             .catch(function (error) {
+    //                 console.log(error);
+    //             });
+    //     }
+    // }
+
+    const checkPattern = (str) => {
+        if (str.length > 11) {
+            setPatternError("only 10 character is valid")
+            return
+        }
+        var onlyString = /[a-zA-Z]/;
+        var allPattern = /[a-zA-Z0-9]/
+        if (!allPattern.test(str)) {
+            setPatternError("only a-z,A-Z and number is Valid")
+            return
+        }
+        for (let i = 0; i < str.length; i++) {
+            if (!onlyString.test(str[0])) {
+                setPatternError("should first a-z and A-Z")
+                return
+            }
+            if (!onlyString.test(str[i])) {
+                setPatternError("should first a-z and A-Z")
+                return
+            }
+        }
+        return setPatternError("ok");
     }
     return (
         <div className={styles.inBoxContainer}>
-            <button onClick={()=>runTest()}>test</button>
+            {/* <button onClick={() => runTest()}>test</button>
+            <button onClick={() => verify()}>verify</button> */}
             <div className={styles.header}>
                 <div className="d-flex align-items-center flex-grow-1 flex-shrink-1 flex-grow-1 text-hover ">
                     <i onClick={() => setShowSidebar(true)} className="bi bi-list fs-3 text-light " role="button"></i>
@@ -100,38 +231,113 @@ function InBox({ setShowWindow, setShowSidebar }) {
             </div>
             <div ref={contactDiv} className={styles.main}>
                 {(userAddress && Object.keys(contactList).length)
-                    ? Object.keys(contactList).map((row, index) =>
-                        <div key={index} onClick={() => handelClickContent(row, contactList[row])} className={activeRow === row ? `${styles.rowContent} ${styles.active}` : `${styles.rowContent}`} style={{ order: contactList[row].timeStamp ? (Math.floor(contactList[row].timeStamp / 10000) - 16725312) * -1 : 0 }} role="button">
+                    && Object.keys(contactList).map((row, index) =>
+                        <div key={index} onClick={() => handelClickContent(row, contactList[row], "ChatView")} className={activeRow === row ? `${styles.rowContent} ${styles.active}` : `${styles.rowContent}`} style={{ order: contactList[row].timeStamp ? (Math.floor(contactList[row].timeStamp / 10000) - 16725312) * -1 : 0 }} role="button">
                             <div style={{ backgroundColor: contactList[row].color, borderRadius: "50%" }}>
                                 <img src={contactList[row].avatar || "./img/avatar.png"} className={styles.contactImg} alt="" />
                             </div>
                             <div className={styles.contentDetail}>
                                 <h6 className={`${styles.contactName} nForSearch`}>{contactList[row].name?.substring(0, 15)}</h6>
-                                <span className={`${styles.address} aForSearch` }>{row.substring(0, 24)}</span>
+                                <span className={`${styles.address} aForSearch`}>{row.substring(0, 24)}</span>
                             </div>
                             <div className={styles.time}>{handelTimeShow(contactList[row].timeStamp)}</div>
                         </div>)
-                    : <div className='d-block d-sm-none'>
-                        <LoginGif section={!userAddress ? "connectWallet" : !Object.keys(contactList).length && "creatNewChat"} />
-                    </div>
                 }
+                {(myChanels && Object.keys(myChanels).length)
+                    && Object.keys(myChanels).map((row, index) =>
+                        <div key={index} onClick={() => handelClickChanel(row, myChanels[row], "ChanelView")} className={activeRow === row ? `${styles.rowContent} ${styles.active}` : `${styles.rowContent}`} style={{ order: myChanels[row].LastMessageTimeStamp ? (Math.floor(myChanels[row].LastMessageTimeStamp / 10000) - 16725312) * -1 : 0 }} role="button">
+                            <div style={{ backgroundColor: myChanels[row]?.color, borderRadius: "50%" }}>
+                                <img src={"./img/avatar.png"} className={styles.contactImg} alt="" />
+                            </div>
+                            <div className={styles.contentDetail}>
+                                <h6 className={`${styles.contactName} nForSearch`}>{row}</h6>
+                                <span className={`${styles.address} aForSearch`}>{myChanels[row]?.owner?.substring(0, 24)}</span>
+                            </div>
+                            <div className={styles.time}>{handelTimeShow(myChanels[row]?.LastMessageTimeStamp)}</div>
+                        </div>)
+                }
+                {(!Object.keys(contactList).length && !Object.keys(myChanels).length)
+                    && <div className='d-block d-sm-none'>
+                        <LoginGif section={!userAddress ? "connectWallet" : !Object.keys(contactList).length && "creatNewChat"} />
+                    </div>}
             </div>
-            <button data-bs-toggle="modal" data-bs-target="#modalAddAddress" className={`${styles.addNewContact} btn btn-success`}>
+            {/* <button  className={`${styles.addNewContact} btn btn-success`}>
                 <i className="bi bi-pencil-fill fs-5 text-light"></i>
-            </button>
+            </button> */}
+
+            <div className={styles.containerFloating}>
+                <div onClick={() => setModalSection("search")} data-bs-toggle="modal" data-bs-target="#modalAddAddress" title='Search Chanel' className={`${styles.nd4} ${styles.nds}`}><img className={styles.reminder} alt='' />
+                    <i className="bi bi-search fs-4 text-light" style={{ marginLeft: "8px" }}></i>
+                </div>
+                <div onClick={() => { setTransActionResult(); setModalSection("chanel") }} data-bs-toggle="modal" data-bs-target="#modalAddAddress" title='Create Chanel' className={`${styles.nd3} ${styles.nds}`}>
+                    <i className="bi bi-megaphone-fill fs-4 text-light" style={{ marginLeft: "8px" }}></i>
+                    {/* <p className={styles.letter}>CH</p> */}
+                </div>
+                <div onClick={() => setModalSection("chat")} data-bs-toggle="modal" data-bs-target="#modalAddAddress" title='New chat' className={`${styles.nd1} ${styles.nds}`}>
+                    <i className="bi bi-chat-dots-fill fs-3 text-light"></i>
+                </div>
+                <div className={styles.floatingButton}>
+                    <p className={styles.plus}>+</p>
+                    <i className={`${styles.edit} bi bi-pencil-fill fs-3 text-light`}></i>
+                </div>
+            </div>
+
             {/* modal add address */}
-            <div className="modal fade" id="modalAddAddress" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div className="modal fade" id="modalAddAddress"  >
                 <div className="modal-dialog">
                     <div className={`${styles.modalContent} modal-content`}>
                         <div className="modal-header">
-                            <h1 className="modal-title fs-5 text-light" id="staticBackdropLabel">Add New Flow Addres</h1>
+                            {modalSection === "chat" && <h1 className="modal-title fs-5 text-light" id="staticBackdropLabel">Add New Flow Addres</h1>}
+                            {modalSection === "search" && <h1 className="modal-title fs-5 text-light" id="staticBackdropLabel">Search Chanel</h1>}
+                            {modalSection === "chanel" && <h1 className="modal-title fs-5 text-light" id="staticBackdropLabel">Create Chanel</h1>}
                             <button type="button" className="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div className="modal-body">
-                            <input value={newAddress ? newAddress : ""} onChange={(e) => setNewAddress(e.target.value)} className={styles.inputModal} type='text' placeholder='new address' />
+                            {modalSection === "chat" && <input value={newAddress ? newAddress : ""} onChange={(e) => setNewAddress(e.target.value)} className={styles.inputModal} type='text' placeholder='new address' />}
+                            {modalSection === "search" &&
+                                <div className='d-flex align-items-center'>
+                                    <input style={{ maxWidth: "150px" }} value={searchChanel ? searchChanel : ""} onChange={(e) => setSearchChanel(e.target.value)} className={styles.inputModal} type='text' placeholder='Search id chanel' />
+                                    <button onClick={() => handelAddAddress("search")} className='btn btn-outline-success p-0 m-0 border-0'><i className="bi bi-search fs-4 px-1 " style={{ marginLeft: "0" }}></i></button>
+                                    {myChanels[searchChanel]?.id && <button onClick={() => handelClickChanel(searchChanel,myChanels[searchChanel] , "ChanelView")} className='btn btn-outline-success'><i className="bi bi-view fs-4 px-1 " style={{ marginLeft: "0" }}></i> View Channel</button>}
+                                </div>
+                            }
+                            {modalSection === "chanel" &&
+                                <div>
+                                    <div className='d-flex py-2'>
+                                        <label className='text-light'>Name:</label>
+                                        <input value={newChanel ? newChanel : ""} onChange={(e) => { setNewChanel(e.target.value); checkPattern(e.target.value) }} className={styles.inputModal} type='text' placeholder='Name Of new Chanel' />
+                                    </div>
+                                    <div className=''>
+                                        <div className="form-check py-2">
+                                            <input className="form-check-input" type="checkbox" value={channelType} onChange={(e) => setChannelType(e.target.checked)} />
+                                            <label className="form-check-label text-light">
+                                                Paid  Membership
+                                            </label>
+                                        </div>
+                                        {channelType
+                                            && <div className='d-flex py-2'>
+                                                <label className='text-light'>Chanel Memmbership fee:</label>
+                                                <input style={{ maxWidth: "80px" }} value={chanelFee ? chanelFee : ""} onChange={(e) => { setChanelFee(e.target.value) }} className={styles.inputModal} type='number' inputMode='number' placeholder='fee' min={0} max={10} step={0.01} />
+                                            </div>}
+                                    </div>
+                                </div>}
+                            {(modalSection === "chanel" && (transActionResult?.status < 4 || createChannelAPI.status === "loading")) &&
+                                <div className='text-success'>
+                                    <div className="spinner-grow spinner-grow-sm mx-2 " role="status">
+                                        <span className="visually-hidden">Loading...</span>
+                                    </div>
+                                    Creating Chanel...
+                                </div>
+                            }
+                            {(modalSection === "chanel" && ((transActionResult?.status === 4 && transActionResult?.statusCode === 1) || createChannelAPI.status === "rejected")) &&
+                                <div className='flex-grow-1 flex-shrink-1 d-flex align-items-center justify-content-center text-danger'> <i className="fs-3 me-2 bi bi-exclamation-diamond"></i>!Creating Channel has error</div>
+                            }
+                            {(modalSection === "chanel" && patternError !== "ok" && newChanel !== "") && <div className='text-danger'>{patternError}</div>}
                         </div>
                         <div className="modal-footer">
-                            <button onClick={() => handelAddAddress()} type="button" className="btn btn-success">Add Address</button>
+                            {modalSection === "chat" && <button onClick={() => handelAddAddress("chat")} type="button" data-bs-dismiss="modal" aria-label="Close" className="btn btn-success">Add Address</button>}
+                            {modalSection === "search" && <button type="button" data-bs-dismiss="modal" aria-label="Close" className="btn btn-success">Cancel</button>}
+                            {modalSection === "chanel" && <button onClick={() => handelAddAddress("chanel")} type="button" className="btn btn-success">Add Chanel</button>}
                         </div>
                     </div>
                 </div>

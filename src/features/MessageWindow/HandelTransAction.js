@@ -29,7 +29,7 @@ function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, mess
             caledGetChatAPI.current = txId;
         }
     }, [transActionResult, contactAddress, dispatch, userAddress, getChatAPI, caledGetChatAPI, txId])
-    console.log(transActionResult)
+    // console.log(transActionResult)
     return (
         <div className="d-flex align-items-center">
             {(transActionResult?.statusCode === 1 || status === "rejected")
@@ -39,7 +39,7 @@ function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, mess
             {/* {status === "idle" && <div className="progress flex-grow-1 flex-shrink-1 me-2" style={{ height: "0.3rem" }}>
                 <div className={transActionResult?.statusCode === 1 ? "progress-bar progress-bar-striped bg-danger" : "progress-bar progress-bar-striped bg-success"} role="progressbar" aria-label="Success striped example" style={{ width: `${transActionResult?.status * 25}%` }} aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
             </div>} */}
-            {((status === "loading" || transActionResult?.status !==1) && status !== "rejected") && <div className='text-success'>
+            {((status === "loading" || (status==="idle" && transActionResult?.status<4))&&transActionResult?.statusCode !== 1 ) && <div className='text-success'>
                 <div className="spinner-grow spinner-grow-sm mx-2 " role="status">
                     <span className="visually-hidden">Loading...</span>
                 </div>

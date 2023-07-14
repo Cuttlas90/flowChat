@@ -19,13 +19,13 @@ function App() {
     } catch (error) {
       console.log(error)
     }
+
   }, []);
   useEffect(() => {
     if (user) {
       dispatch(setWalletUser(user));
     };
   }, [user, dispatch]);
- 
   return (
     <div className='App'>
       <Sidebar setShowSidebar={setShowSidebar} showSidebar={showSidebar} />
@@ -33,7 +33,7 @@ function App() {
         <InBox setShowWindow={setShowWindow} setShowSidebar={setShowSidebar} />
       </div>
       <div className={showWindow === 'inbox' ? 'MessageWindow d-none d-sm-block' : 'MessageWindow'} >
-        <MessageWindow setShowWindow={setShowWindow} />
+        <MessageWindow setShowWindow={setShowWindow} showWindow={showWindow}/>
       </div>
     </div>
   );
