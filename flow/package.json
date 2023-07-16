@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@onflow/fcl": "^1.4.1"
+  }
+}
