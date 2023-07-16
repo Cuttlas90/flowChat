@@ -1,0 +1,51 @@
+:root{
+  --bs-bg-light:#262e39;
+  --bs-bg-dark:#1d2733;
+  --bs-bg-dark-hover:255,255,255;
+  --bs-bg-Hdark:#0e1621;
+  --bs-text-light:#ffffff;
+  --bs-border-dark:0,0,0;
+  --bs-bg-Mdark : #17212b;
+  --bs-modal-bg:#17212b ;
+  --bs-brand:var(--bs-success);
+  --bs-brandColor:#00b868;
+  --bs-brandColor-hover:#00ef8b;
+}
+.App {
+  display: flex;
+}
+
+.InBox {
+  flex: 1 0 350px ;
+  height: 100vh;
+}
+
+.MessageWindow {
+  flex: 1 1 2000px;
+  height: 100vh;
+
+}
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, .55);
+}
+.text-hover {
+  transition: all 0.3s;
+}
+.text-hover:hover,.text-hover i.text-light:hover {
+  color: var(--bs-success) !important;
+  transition: all 0.3s;
+}
