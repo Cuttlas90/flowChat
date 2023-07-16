@@ -1,0 +1,30 @@
+{
+  "short_name": "Flow Chat",
+  "name": "Flow Chat Messenger",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "dir": "ltr",
+  "lang": "en-US",
+  "orientation": "any",
+  "start_url": ".",
+  "id": "/?source=pwa",
+  "description":"Web Application For Sending Message to Flow Blockchaine",
+  "display": "standalone",
+  "theme_color": "#1d2733",
+  "background_color": "#1d2733"
+}
