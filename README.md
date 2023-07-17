@@ -6,6 +6,15 @@ Chats facilitate the exchange of various types of messages, including text, voic
 Channels, on the other hand, can be either public or private. Both types of channels are stored as resources with specific storage paths.
 Public channels allow anyone to join by utilizing its unique identification code. On the contrary, private channels require a subscription fee, determined by the channel administrator, to be paid by individuals seeking access
 
+# Main Features
+- serverless: the application is completely serverless and fully decentralized thanks to Flow
+- flow profile support: FlowChat supports flow profile contract
+- chats: supports p2p chat
+- channels: supports public and paid channels
+- web Application (SPA): the frontend is design using React framework and after first installation doesnt need to interact with front server
+- support different file type: FlowChat supports voice, picture and file as attachment
+- special voice encoding: FlowChat use Opus codec for ultra compression voice which supports in iphone too
+ 
 # Demo
 Demo of flowChat can be found on https://flowchat.cuttlas.app
 
