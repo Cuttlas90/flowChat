@@ -1,20 +1,17 @@
-import { useEffect} from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { getChat, selectService } from '../service/serviceSlice';
+function HandelTransAction({ actionFunc, message, UUID, timestamp, status }) {
 
-function HandelTransAction({ txId, userAddress, contactAddress, actionFunc, message, UUID, timestamp, status }) {
-    const dispatch = useDispatch();
-    const getChatAPI = useSelector(selectService).user.getChat.messageList;
-
-    // useEffect(() => {
-    //     if (getChatAPI[contactAddress]?.status === "idle") {
-    //         dispatch(getChat({ userAddress: userAddress, contactAddress: contactAddress }));
-    //     }
-    // }, [contactAddress, dispatch, userAddress, getChatAPI])
+    const typeMseage = (str) => {
+        try {
+            JSON.parse(str);
+        } catch (e) {
+            return "text";
+        }
+        return JSON.parse(str).type;
+    }
     return (
         <div className="d-flex align-items-center">
             {status === "rejected"
-                && <button title="Resend" onClick={() => actionFunc(message, "old", UUID, timestamp)} className="btn btn-link me-2 text-danger p-0 d-flex align-items-center text-hover ms-2" style={{ textDecoration: "none" }}>
+                && <button title="Resend" onClick={() => actionFunc({message:message, type:"old", UUID:UUID, timestamp:timestamp,MSGtype:typeMseage(message)})} className="btn btn-link me-2 text-danger p-0 d-flex align-items-center text-hover ms-2" style={{ textDecoration: "none" }}>
                     <img src="./img/update.png" alt="" />
                 </button>}
             {status === "loading" && <div className='text-success'>

@@ -6,6 +6,9 @@ import LoginGif from '../LoginGif/LoginGif';
 import { handelTimeShow } from '../functions/handelTimeShow';
 import { v4 as uuidv4 } from 'uuid';
 import HandelTransAction from './HandelTransAction';
+import HandelMessage from './HandelMessage';
+import VoiceMessages from '../VoiceMessages/VoiceMessages';
+import FileMessages from '../FileMessages/FileMessages';
 
 function ChatView({ setShowWindow }) {
     const [searchActivInput, setSearchActivInput] = useState(false);
@@ -19,6 +22,20 @@ function ChatView({ setShowWindow }) {
     const [inputSearch, setInputSearch] = useState("");
     const messageDiv = useRef();
     const [textMessage, setTextMessage] = useState("");
+    const [isRecordSection, setIsRecordSection] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
+    const [voiceMessage, setVoiceMessage] = useState("");
+    const [inputFile, setInputFile] = useState("");
+    const [showmodalFile, setShowmodalFile] = useState(false);
+    const [activeDrag, setActiveDrag] = useState("")
+    const [timerEvent,setTimerEvent]=useState(null);
+    const stopRef = useRef(null);
+
+    useEffect(() => {
+        setIsRecordSection(false);
+        setIsRecording(false);
+        setVoiceMessage("")
+    }, [contactInfo])
 
     useEffect(() => {
         setSearchActivInput(false);
@@ -26,10 +43,9 @@ function ChatView({ setShowWindow }) {
     }, [contactInfo]);
     useEffect(() => {
         if (contactInfo.address) {
-            console.log("useEwffect ruuuun")
             dispatch(getChat({ userAddress: userInfo.wallet.addr, contactAddress: contactInfo.address }))
         }
-    }, [contactInfo.address, userInfo.wallet.addr]);
+    }, [contactInfo.address, userInfo.wallet.addr, dispatch]);
     useEffect(() => {
         setMessages(getChatAPI[contactInfo.address]);
     }, [contactInfo.address, messages, getChatAPI]);
@@ -50,21 +66,83 @@ function ChatView({ setShowWindow }) {
             }
         }
     }
-    const handelSendMessage = (message, type, UUID, timestamp) => {
+    const handelSendMessage = ({ message, type, UUID, timestamp, MSGtype }) => {
         if (message) {
+            if (MSGtype === "text") {
+                dispatch(sendMessage(
+                    {
+                        uuid: type === "new" ? uuidv4() : UUID,
+                        userAddress: userInfo.wallet.addr,
+                        contactAddress: contactInfo.address,
+                        message: type === "new" ? JSON.stringify({ "type": MSGtype, "message": message }) : message,
+                        timestamp: type === "new" ? Number.parseFloat(Math.ceil(new Date().getTime() / 1000)).toFixed(8) : timestamp
+                    }))
+                setTextMessage((prev) => ({ ...prev, [`${contactInfo?.address}`]: "" }))
+            }
+        };
+        if (MSGtype === "voice") {
             dispatch(sendMessage(
                 {
                     uuid: type === "new" ? uuidv4() : UUID,
                     userAddress: userInfo.wallet.addr,
                     contactAddress: contactInfo.address,
-                    message: message,
+                    message: type === "new" ? JSON.stringify({ "type": MSGtype, "message": message }) : message,
                     timestamp: type === "new" ? Number.parseFloat(Math.ceil(new Date().getTime() / 1000)).toFixed(8) : timestamp
                 }))
-                setTextMessage((prev) => ({ ...prev, [`${contactInfo?.address}`]: "" }))
+            setVoiceMessage("");
+            setIsRecordSection(false);
+        };
+        if (MSGtype === "file" || MSGtype === "image") {
+            dispatch(sendMessage(
+                {
+                    uuid: type === "new" ? uuidv4() : UUID,
+                    userAddress: userInfo.wallet.addr,
+                    contactAddress: contactInfo.address,
+                    message: type === "new" ? JSON.stringify({ "type": MSGtype, "message": message }) : message,
+                    timestamp: type === "new" ? Number.parseFloat(Math.ceil(new Date().getTime() / 1000)).toFixed(8) : timestamp
+                }))
+            setInputFile("");
+        };
+    }
+    const handelDrag = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log(e.type)
+        switch (e.type) {
+            case "dragenter":
+                // setActiveDrag("activeDrag")
+                break;
+            case "dragover":
+                setActiveDrag("activeDrag")
+                break;
+            case "dragleave":
+                if (timerEvent) {
+                    clearTimeout(timerEvent);
+                }
+            const timer = setTimeout(() => {
+                setActiveDrag("")
+            }, 1000);
+            setTimerEvent(timer);
+                break;
+            case "drop":
+                setActiveDrag("")
+                setInputFile(e.dataTransfer.files)
+                setShowmodalFile(true);
+                break;
+            default:
+                break;
         }
     }
     return (
-        <div className={styles.MessageWindowContainer}>
+        <div onDragEnter={(e) => handelDrag(e)} onDragLeave={(e) => handelDrag(e)} onDragOver={(e) => handelDrag(e)} onDrop={(e) => handelDrag(e)} onDropCapture={(e) => handelDrag(e)}  className={`${styles.MessageWindowContainer} ${styles[activeDrag]}`}>
+            <div className={styles.drapWindow}>
+                <div className='d-flex align-items-center'>
+                    <i className="bi bi-cloud-arrow-up fs-1 me-3"></i>
+                    <span className='fs-2'>
+                        Upload File...
+                    </span>
+                </div>
+            </div>
             <div className={styles.header}>
                 <div className="d-flex align-items-center  w-100">
                     <div className="d-flex align-items-center d-sm-none">
@@ -86,14 +164,14 @@ function ChatView({ setShowWindow }) {
                 </div>
                 <div className="d-flex align-items-center">
                     <i onClick={() => { setSearchActivInput(!searchActivInput); setInputSearch("") }} className={searchActivInput ? "bi bi-x-lg fs-4 me-3 p-2 text-hover" : "bi bi-search fs-4 me-3 p-2 text-hover"}></i>
-                    {(userInfo?.wallet.addr && contactInfo?.address)&&
-                    <div>
-                        <div className='d-flex align-items-center' style={{width:"70px"}} onClick={() => dispatch(getChat({ userAddress: userInfo.wallet.addr, contactAddress: contactInfo.address }))}>
-                            <span className={messages?.status === "rejected" ? "text-daanger" : "text-success"}>{messages?.time && handelTimeShow(messages?.time / 1000)}</span>
-                            <i className={messages?.status === "loading" ? `${styles.cyncSpinner} bi bi-arrow-repeat fs-4 px-2 text-hover ms-auto` : messages?.status === "rejected" ? "bi bi-arrow-repeat fs-4 px-2 text-danger ms-auto" : "bi bi-arrow-repeat fs-4 px-2 text-hover ms-auto"}></i>
-                        </div>
-                            <div className={messages?.status === "rejected" ? "text-daanger" : "text-success"} style={{ fontSize: "15px",marginTop:"-10px" }}>Last sync</div>
-                    </div>}
+                    {(userInfo?.wallet.addr && contactInfo?.address) &&
+                        <div>
+                            <div className='d-flex align-items-center' style={{ width: "70px" }} onClick={() => dispatch(getChat({ userAddress: userInfo.wallet.addr, contactAddress: contactInfo.address }))}>
+                                <span className={messages?.status === "rejected" ? "text-daanger" : "text-success"}>{messages?.time && handelTimeShow(messages?.time / 1000)}</span>
+                                <i className={messages?.status === "loading" ? `${styles.cyncSpinner} bi bi-arrow-repeat fs-4 px-2 text-hover ms-auto` : messages?.status === "rejected" ? "bi bi-arrow-repeat fs-4 px-2 text-danger ms-auto" : "bi bi-arrow-repeat fs-4 px-2 text-hover ms-auto"}></i>
+                            </div>
+                            <div className={messages?.status === "rejected" ? "text-daanger" : "text-success"} style={{ fontSize: "15px", marginTop: "-10px" }}>Last sync</div>
+                        </div>}
                 </div>
             </div>
             <div ref={messageDiv} className={styles.main}>
@@ -107,7 +185,7 @@ function ChatView({ setShowWindow }) {
                                         <img src={row.sender === userInfo.wallet.addr ? userInfo.profile?.avatar : contactInfo.profile?.avatar || "./img/avatar.png"} className={styles.contactImg} alt="" />
                                     </div>
                                     <div className='flex-grow-1 flex-shrink-1'>
-                                        <span className={row.sender === userInfo.wallet.addr ? 'd-flex justify-content-end Mesage' : 'd-flex justify-content-start Mesage'}>{row.message}</span>
+                                        <span className={row.sender === userInfo.wallet.addr ? 'd-flex justify-content-end Mesage' : 'd-flex justify-content-start Mesage'}><HandelMessage MSG={row.message} /></span>
                                     </div>
                                 </div>
                             </div>
@@ -130,7 +208,9 @@ function ChatView({ setShowWindow }) {
                                     <img src={userInfo.profile?.avatar || "./img/avatar.png"} className={styles.contactImg} alt="" />
                                 </div>
                                 <div className={sendMessageAPI[contactInfo.address][row].status === "rejected" ? `${styles.rejected} ${styles.status}` : styles.status}>
-                                    <span className='d-flex justify-content-end Mesage'>{sendMessageAPI[contactInfo.address][row].message}</span>
+                                    <span className='d-flex justify-content-end Mesage'>
+                                        <HandelMessage MSG={sendMessageAPI[contactInfo.address][row].message} />
+                                    </span>
                                     <HandelTransAction
                                         userAddress={userInfo.wallet.addr}
                                         contactAddress={contactInfo.address}
@@ -154,14 +234,39 @@ function ChatView({ setShowWindow }) {
                     Updating messages...
                 </div>
             }
-            <div className={styles.footer}>
-                <div className='text-hover'><i className="bi bi-paperclip fs-3" role='button'></i></div>
-                <div className='flex-grow-1 flex-shrink-1'>
-                    <input onKeyUp={(e) => e.key === "Enter" && handelSendMessage(textMessage[[contactInfo?.address]], "new")} disabled={contactInfo.address ? false : true} value={textMessage[contactInfo?.address] || ""} onChange={(e) => setTextMessage((prev) => ({ ...prev, [`${contactInfo?.address}`]: e.target.value }))} tabIndex={0} className={styles.inputMessage} placeholder='write a message ...' />
+            {isRecordSection
+                ? <div className={styles.footer}>
+                    <>
+                        {isRecording
+                            ? <div className='text-danger'>
+                                <div className="spinner-grow spinner-grow-sm mx-2 " role="status">
+                                    <span className="visually-hidden">Recording</span>
+                                </div>
+                            </div>
+                            : <div onClick={() => { setIsRecordSection(false); setVoiceMessage("") }} className='text-hover text-danger'><i className="bi bi-x-circle fs-3" role='button'></i></div>
+                        }
+                        <div className='flex-grow-1 flex-shrink-1 px-2'style={{width:"60px"}}>
+                            <VoiceMessages stopRef ={stopRef} mode={isRecording ? "recording" : "playMode"} setVoiceMessage={setVoiceMessage} />
+                        </div>
+                        {isRecording
+                            ? <div ref={stopRef} onClick={() => setIsRecording(false)} className='text-hover'><i className="bi bi-stop-circle-fill fs-3" role='button'></i></div>
+                            : <div onClick={() => contactInfo.address && handelSendMessage({ message: voiceMessage, type: "new", UUID: "", timestamp: "", MSGtype: "voice" })} className='text-hover'><i className="bi bi-send me-2 fs-3" role='button'></i></div>
+                        }
+                    </>
                 </div>
-                <div onClick={() => contactInfo.address && handelSendMessage(textMessage[[contactInfo?.address]], "new")} className='text-hover'><i className="bi bi-send me-2 fs-3" role='button'></i></div>
-                <div className='text-hover'><i className="bi bi-mic fs-3" role='button'></i></div>
-            </div>
+                : <div className={styles.footer}>
+                    <div className='text-hover position-relative' role='buttom'>
+                        <input key={Math.random().toString(36)} className={styles.inputFile} type='file' onChange={(e) => { setInputFile(e.target.files); setShowmodalFile(true) }} />
+                        <i className="bi bi-paperclip fs-3" role='button'></i>
+                    </div>
+                    <div className='flex-grow-1 flex-shrink-1'>
+                        <input onKeyUp={(e) => e.key === "Enter" && handelSendMessage({ message: textMessage[[contactInfo?.address]], type: "new", UUID: "", timestamp: "", MSGtype: "text" })} disabled={contactInfo.address ? false : true} value={textMessage[contactInfo?.address] || ""} onChange={(e) => setTextMessage((prev) => ({ ...prev, [`${contactInfo?.address}`]: e.target.value }))} tabIndex={0} className={styles.inputMessage} placeholder='write a message ...' />
+                    </div>
+                    <div onClick={() => contactInfo.address && handelSendMessage({ message: textMessage[[contactInfo?.address]], type: "new", UUID: "", timestamp: "", MSGtype: "text" })} className='text-hover'><i className="bi bi-send me-2 fs-3" role='button'></i></div>
+                    <div onClick={() => { setIsRecordSection(true); setIsRecording(true) }} className='text-hover'><i className="bi bi-mic fs-3" role='button'></i></div>
+                </div>
+            }
+            {showmodalFile && <FileMessages inputFile={inputFile} setShowmodalFile={setShowmodalFile} setInputFile={setInputFile} actionFunc={handelSendMessage} />}
         </div >
     )
 }

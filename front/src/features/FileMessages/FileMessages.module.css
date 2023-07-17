@@ -1,0 +1,13 @@
+.modalContent{
+    background-color:var(--bs-bg-dark)
+}
+.showImage{
+    height: 140px;
+    padding: 20px;
+}
+
+.showImage img{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

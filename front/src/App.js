@@ -13,7 +13,6 @@ function App() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [user, setUser] = useState({ loggedIn: null });
   const dispatch = useDispatch();
-  console.log("app.js")
   useEffect(() => {
     try {
       fcl.currentUser.subscribe(setUser);
@@ -27,6 +26,8 @@ function App() {
       dispatch(setWalletUser(user));
     };
   }, [user, dispatch]);
+  const test = {type:"file",message:"negar"};
+  const testString = JSON.stringify(test);
   return (
     <div className='App'>
       <Sidebar setShowWindow={setShowWindow} setShowSidebar={setShowSidebar} showSidebar={showSidebar} />

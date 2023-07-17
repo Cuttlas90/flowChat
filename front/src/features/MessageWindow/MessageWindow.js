@@ -2,7 +2,6 @@ import ChanelView from './ChanelView'
 import ChatView from './ChatView.js'
 
 function MessageWindow({ showWindow, setShowWindow }) {
-    console.log("message window")
     return (
         <>
             {showWindow === "ChanelView" && <ChanelView setShowWindow={setShowWindow} />}

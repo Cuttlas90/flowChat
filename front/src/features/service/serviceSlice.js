@@ -257,7 +257,6 @@ export const getChannelChat = createAsyncThunk(
         arg(`${channelId}`, t.String),
       ],
     })
-    console.log(chatList)
     return chatList;
   }
 );
@@ -292,7 +291,7 @@ export const sendMessage = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 200
+      limit: 400
     });
     const transaction = fcl.tx(transactionId).onceSealed()
     return transaction
@@ -301,7 +300,6 @@ export const sendMessage = createAsyncThunk(
 export const sendChannelMessage = createAsyncThunk(
   'sendChannelMessage/Service',
   async ({ channel, message, timestamp ,typeChannel,sender}) => {
-    console.log(channel);
     const transactionId = await fcl.mutate({
       cadence:
       typeChannel ? `
@@ -340,7 +338,7 @@ export const sendChannelMessage = createAsyncThunk(
       payer: fcl.authz,
       proposer: fcl.authz,
       authorizations: [fcl.authz],
-      limit: 200
+      limit: 400
     });
     const transaction = fcl.tx(transactionId).onceSealed()
     return transaction  
@@ -397,8 +395,6 @@ export const createChannel = createAsyncThunk(
 export const joinToPublicChannel = createAsyncThunk(
   'joinToPublicChannel/Service',
   async ({ channelId, sender }) => {
-    console.log(channelId)
-    console.log(sender)
     const transactionId = await fcl.mutate({
       cadence: `
       import MessangerTest4 from 0xmessanger
@@ -707,8 +703,6 @@ export const serviceSlice = createSlice({
               }
             }
             state.user.sendMessage.sendList[action.meta.arg.contactAddress] = { ...tempList };
-            console.log("sendMessageList")
-            console.log(sendMessageList)
           }
         }
       })
@@ -723,21 +717,17 @@ export const serviceSlice = createSlice({
         state.user.getChannelChat.messageList[action.meta.arg.channelId] = { ...{}, "messages": action.payload, status: "idle","time":Date.now(), error: "" };
         if (action.payload) {
           var sendMessageList = current(state).user.sendChannelMessage.sendList[action.meta.arg.channelId];
-          console.log(sendMessageList)
           var tempList = { ...sendMessageList };
           var messges = [...action.payload]
           if (sendMessageList) {
             var sendmessagTimes = Object.keys(sendMessageList);
             for (let timsMessage of sendmessagTimes) {
-              
               let finded = messges.find(item => Number(item.timestamp) === Number(timsMessage));
-              console.log(finded)
               if (finded) {
                 delete tempList[timsMessage];
               }
             }
             state.user.sendChannelMessage.sendList[action.meta.arg.channelId] = { ...tempList };
-            console.log(sendMessageList)
           }
         }
       })
@@ -860,7 +850,6 @@ export const getFullContacs = (userAddress) => async (dispatch, getState) => {
       sortedContacs.push({ address: contactAddress, timeStamp: myContacts[contactAddress] });
     }
     sortedContacs.sort((a, b) => (a.timeStamp < b.timeStamp) ? 1 : ((b.timeStamp < a.timeStamp) ? -1 : 0));
-    // console.log(sortedContacs)
     for (let i = 0; i < sortedContacs.length; i++) {
       await dispatch(getProfile({ address: sortedContacs[i].address, isUserAddress: false, timeStamp: sortedContacs[i].timeStamp }))
     }

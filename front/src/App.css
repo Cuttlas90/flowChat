@@ -49,3 +49,17 @@ html {
   color: var(--bs-success) !important;
   transition: all 0.3s;
 }
+.blink{
+  -webkit-animation: .75s linear infinite blink;
+    animation: .75s linear infinite blink;
+}
+@keyframes blink {
+  0% {
+    transform: scale(0.5);
+}
+
+50% {
+    opacity: 1;
+    transform: none;
+}
+}

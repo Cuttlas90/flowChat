@@ -20,6 +20,7 @@ function Sidebar({ showSidebar, setShowSidebar ,setShowWindow}) {
     const handelSetAvatar = () => {
         if (userProfile.avatar[0]) {
             var comsFileBase64;
+            console.log(typeof userProfile.avatar[0])
             new Compressor(userProfile.avatar[0], {
                 quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
                 maxWidth: 75,

@@ -7,6 +7,7 @@
     display: flex;
     flex-direction: column;
     border-left: 1px solid var(--bs-bg-Hdark);
+    position: relative;
 }
 
 .header {
@@ -181,4 +182,43 @@
     100%{
         transform: rotate(360deg);
     }
+}
+.inputFile{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+.inputFile::-webkit-file-upload-button { /* chromes and blink button */
+    cursor: pointer; 
+}
+
+.activeDrag .drapWindow{
+ display: flex;
+}
+.drapWindow{
+    display: none;
+    position: absolute;
+    top: 80px;
+    left: 15px;
+    width:calc(100% - 30px);
+    height: calc(100% - 160px);
+    background-color: rgba(var(--bs-bg-dark-hover), 0.1);
+    z-index: 5;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+    border-radius: 12px;
+}
+.drapWindow>div{
+    border: 3px dashed var(--bs-success);
+    border-radius: 16px;
+    padding: 2em;
+    background-color: var(--bs-bg-dark);
+}
+.inchatIMG{
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
 }
